@@ -1,0 +1,40 @@
+body,html{
+  height: 100%;
+  width: 100%;
+  min-width: 980px;
+  height: 100%;
+  overflow: hidden;
+  -moz-user-select : none;
+  -webkit-user-select: none;
+}
+* {
+  box-sizing: border-box;
+}
+
+.clearfix {
+  &:after {
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    content: " ";
+    clear: both;
+    height: 0;
+  }
+}
+
+
+.page-container{
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.app-bg{
+  background: url(../assets/bg.jpeg) no-repeat top left;
+  background-size: 100% 100%;
+}
+.analogue-container{
+  height: 300px;
+  position: absolute;
+  transform: translateY(-50%);
+  top:45%;
+  width:48%;
+}
