@@ -23,7 +23,7 @@ Vue.use(Barrage)
 Vue.use(new VueSocketIO({
   debug: true,
   // 服务器端地址
-  connection: '//localhost/api',
+  connection: '//localhost:8082',
   vuex: {
     store
   }

@@ -3,16 +3,16 @@ module.exports = {
   outputDir: 'dist',
   devServer: {
     disableHostCheck: true,
-    proxy:{
-      '/api':{
-        target:'//localhost:8082',
-        changeOrigin: true,
-        ws: true,
-        pathRewrite: {
-          '^/api': ''
-        }
-      }
-    }
+    // proxy:{
+    //   '/socket.io':{
+    //     target:'//localhost:8082',
+    //     changeOrigin: true,
+    //     ws: true,
+    //     pathRewrite: {
+
+    //     }
+    //   }
+    // }
   },
   configureWebpack: (config) => {
     Object.assign(config, {
