@@ -69,7 +69,6 @@ io.on('connection', function(socket){
 
   // 玩家获取手牌
   socket.on('getPoke',(uid,rid)=>{
-    // 房间发牌
     const room =  RoomsController.getRoomByUser(uid)
     const poke = PockController.getPokeByRUid(rid,uid)
     socket.emit('gameChannel',{ data:{room,poke},code:200 })
@@ -85,8 +84,8 @@ io.on('connection', function(socket){
 
 
 
-http.listen(8082, function(){
-	console.log('服务启动,端口号:8082');
+http.listen(10068, function(){
+	console.log('服务启动,端口号:10068');
 });
 
 
