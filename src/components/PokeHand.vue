@@ -12,8 +12,8 @@
                   'z-index':666+ind
                 }"
                 @click="handlePoke(p)">
-             <span :class="{'poke-joker':p.weight>12}">{{p.label}}</span>
-             <span>{{p.color|parseColor(p.id)}}</span>
+             <span class="letter-tight" :class="{'poke-joker':p.weight>12}">{{p.label}}</span>
+             <!-- <span>{{p.color|parseColor(p.id)}}</span> -->
           </div>
     </div>
   </div>
@@ -47,11 +47,11 @@ export default {
       type:Array
     }
   },
-  // watch:{
-  //   pokeData(val){
-  //     console.log('牌变化')
-  //   }
-  // },
+  watch:{
+    pokeData(val){
+      this.comCheckList()
+    }
+  },
   filters:{
     parseColor(val){
       switch(val){
@@ -74,45 +74,14 @@ export default {
   methods: {
     handlePoke(p){
       p.checked = !p.checked
-       const checkedList = this.pokeData.filter(item=>{
+       this.comCheckList()
+    },
+    comCheckList(){
+      const checkedList = this.pokeData.filter(item=>{
         return item.checked
       })
       this.$emit('input',checkedList)
-    },
+    }
   }
 }
 </script>
-<style lang="scss">
-  .poke-view-container{
-        display: flex;
-    justify-content: center;
-    > div{
-      width:28px;
-    }
-    .poke-screen{
-      position: relative;
-      font-size: 18px;
-      cursor: auto;
-      font-weight: 700;
-      width: 60px;
-      height: 80px;
-      border: 1px solid #333;
-      border-radius: 8px;
-      padding:5px  7px;
-      background: #eee;
-      display: flex;
-      flex-flow: column;
-      overflow: hidden;
-    }
-    .poke-red{
-      color: #d50e0e;
-    }
-    .poke-checked{
-      transform: translateY(-20px);
-    }
-    .poke-joker{
-      text-indent: 3px;
-      writing-mode:vertical-lr
-    }
-  }
-</style>

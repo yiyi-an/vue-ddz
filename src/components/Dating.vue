@@ -27,7 +27,7 @@
               @click="joinRoom(r)"
             >
               <span>房间号:{{r.id}}</span>
-              <span style="float:right">在线人数:{{r.currentPlayerNum}}/3</span>
+              <span style="float:right">在线人数:{{r.playerNum}}/3</span>
             </div>
           </div>
         </div>

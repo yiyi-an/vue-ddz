@@ -29,22 +29,30 @@
       <div class="main-header"></div>
       <analogue-view design="prev" :playerData="prevPlayer"/>
       <analogue-view design="next" :playerData="nextPlayer"/>
+
       <div class="main-self">
          <div class="self-print-poke">
-          <poke-view :pokeData="pokeViewData" />
+           <div class="print-text" v-show="pokeViewData.length==0"> {{this.textView}}</div>
+           <poke-view :pokeData="pokeViewData" v-show="pokeViewData.length!==0"/>
         </div>
         <div class="self-widget">
-          <div  style="text-align:center" v-if="!gameStart" >
-            <el-button type="success" style="width:72px"  v-if="!isReady" @click="onReady(true)">准 备</el-button>
-            <el-button type="warning" style="width:72px"  v-else @click="onReady(false)">取消准备</el-button>
+          <div v-if="gameStatus=='wating'" style="text-align:center"  >
+            <el-button type="success" style="width:72px"  size="mini" v-if="!isReady" @click="onReady(true)">准 备</el-button>
+            <el-button type="warning" style="width:72px"  size="mini" v-else @click="onReady(false)">取消准备</el-button>
           </div>
-          <div v-if="gameStart && (currentIndex === playerIndex)">
-              <el-button type="success" style="width:72px"  @click="onPass">过了</el-button>
-              <!-- <time-widget> -->
-              <el-button type="success" style="width:72px"  @click="onEmit">出牌</el-button>
+          <!-- <div v-if="gameStatus=='game' && (currentIndex === playerIndex)"> -->
+          <div v-if="gameStatus=='game'" style="text-align:center">
+              <el-button type="warning" style="width:72px"  @click="onEmit('pass')">PASS</el-button>
+              <el-button type="success" style="width:72px"  @click="onEmit">出 牌</el-button>
+          </div>
+          <div v-if="gameStatus=='grab'" style="text-align:center">
+              <el-button type="primary" style="width:72px"  @click="onGrab(1)">1 分</el-button>
+              <el-button type="primary" style="width:72px"  @click="onGrab(2)">2 分</el-button>
+              <el-button type="primary" style="width:72px"  @click="onGrab(3)">3 分</el-button>
+              <el-button type="warning" style="width:72px"  @click="onGrab(0)">不 抢</el-button>
           </div>
         </div>
-        <div v-if="gameStart" class="self-pock-hand">
+        <div v-if="gameStatus=='game' || gameStatus=='grab' " class="self-pock-hand">
           <poke-hand :poke-data="pokeData" v-model="checkedList"/>
         </div>
       </div>
@@ -78,11 +86,12 @@ export default {
   },
   data() {
     return {
-      gameStart:false,
+      gameStatus:"wating",
       chatDisable:false,
       checkedList:[],
       pokeData:[],
       pokeViewData:[],
+      textView:'',
       chatMessage:'',
       playerIndex:undefined,
       uid:undefined,
@@ -108,21 +117,21 @@ export default {
     this.sockets.subscribe("roomChannel", data => {
       const {room} = data
       this.setPlayers(room,this.uid)
-      if(room.begin){
-         this.$socket.emit("getPoke", this.uid,this.rid)
+      if(room.gameStatus=='grab'){
+         this.$socket.emit("getPoke", this.uid)
       }
     })
-
+  
     //监听弹幕频道
     this.sockets.subscribe("chat", data => {
        this.$barrage(data.msg)
     })
 
-    //监听出牌频道
-     this.sockets.subscribe("gameChannel", ({data}) => {
-       this.gameStart = true
+    //监听游戏频道
+     this.sockets.subscribe("gameChannel", (data) => {
+       this.gameStatus = data.room.gameStatus
         this.pokeData = data.poke.sort((a,b)=>b.weight-a.weight)
-        window.pokeDataList = this.pokeData
+        this.setPlayers(data.room,this.uid)
     })
 
 
@@ -148,6 +157,15 @@ export default {
     onReady(flag){
       this.$socket.emit("ready",this.uid,flag)
     },
+    onEmit(pass){
+      if(this.gameStatus !=='game') return 
+      if(!pass && !this.checkedList.length) return 
+      const data = pass ? pass : this.checkedList
+      this.$socket.emit('gameChannel',this.uid,data)
+    },
+    onGrab(type){
+      this.$socket.emit('gameChannel',this.uid,type)
+    },
     onMessage(){
       if(!this.chatMessage.trim()) return
       this.$socket.emit("chat", this.chatMessage,this.uid);
@@ -164,9 +182,9 @@ export default {
       const player = currentPlayer.filter(u=>{
         return u.uid===this.uid
       })[0]
-      player.name="你"
-      this.rid = room.id
       this.player = player
+      this.pokeViewData = this.player.topPoke
+      this.textView = this.player.message
       this.playerIndex = this.player.index
       this.currentIndex = currentIndex
       // 设置上下家
@@ -174,18 +192,12 @@ export default {
       const prevPlayerIndex = ((this.playerIndex +2) %3 )
       currentPlayer.forEach(u=>{
         if(u.index == nextPlayerIndex ){
-          u.name="下家"
           this.nextPlayer = u
         }
         else if(u.index == prevPlayerIndex ){
-          u.name="上家"
           this.prevPlayer = u 
         }  
       })
-    },
-    onPass(){},
-    onEmit(){
-      this.$socket.emit('gameChannel',this.checkedList)
     },
   }
 }
@@ -207,21 +219,31 @@ export default {
       margin: auto;
       > div{
         background: rgba(0,0,0,.3);
+        border: 1px solid red;
       }
       .main-header{
         width: 100%;
         position: absolute;
         top: 0;
         left: 0;
-        height: 150px;
+        height: 70px;
       }
       .self-print-poke{
+        position: absolute;
+        top: -80px;
         height: 80px;
-        min-width: 30px;
+        min-width: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .self-pock-hand{
+        position: absolute;
+        bottom: 10px;
       }
       .main-self{
-        height: 300px;
-        padding-bottom: 20px;
+        height: 120px;
+        padding-bottom: 10px;
         position: absolute;
         display: flex;
         flex-flow: column;
@@ -231,7 +253,11 @@ export default {
         right:0;
         bottom:0;
         .self-widget{
-          margin:10px auto;
+          position: absolute;
+          top:0;
+          left: 0;
+          width: 100%;
+          height: 10px;
         }
       }
     }

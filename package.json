@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev":"pm2 start npm -- vue-cli-service  serve",
+    "dev":"pm2 start npm -- run dev2",
     "dev2": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"

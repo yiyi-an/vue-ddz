@@ -7,7 +7,7 @@
                :class="{
                 'poke-red':idRed.includes(p.color),
                 }">
-             <span>{{p.label}}</span>
+             <span class="letter-tight">{{p.label}}</span>
              <span>{{p.color|parseColor(p.id)}}</span>
           </div>
     </div>
@@ -47,33 +47,3 @@ export default {
   },
 }
 </script>
-<style lang="scss">
-  .poke-view-container{
-    display: flex;
-    justify-content: center;
-    > div{
-      width:28px;
-    }
-    .poke-screen{
-      position: relative;
-      font-size: 18px;
-      cursor: auto;
-      font-weight: 700;
-      width: 60px;
-      height: 80px;
-      border: 1px solid #333;
-      border-radius: 8px;
-      padding:5px  7px;
-      background: #eee;
-      display: flex;
-      flex-flow: column;
-      overflow: hidden;
-    }
-    .poke-red{
-      color: #d50e0e;
-    }
-    .poke-checked{
-      transform: translateY(-20px);
-    }
-  }
-</style>
