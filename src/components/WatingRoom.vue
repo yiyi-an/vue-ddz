@@ -1,34 +1,9 @@
 <template>
 <div class="room page-container">
   <div class="room-main app-bg">
-
-    <!-- <div class="room-status">
-       <div class="clearfix player-self player-block">
-         <span class="player-name">{{player.name}}</span>
-         <span class="player-status" v-if="player.isReady">已准备</span>
-         <span class="player-status" v-else>未准备</span>
-       </div>
-       <div class="clearfix player-block">
-         <div v-if="prevPlayer.name">
-           <span class="player-name">{{prevPlayer.name}}</span>
-            <span class="player-status" v-if="prevPlayer.isReady">已准备</span>
-            <span class="player-status" v-else>未准备</span>
-         </div>
-         <div v-else>空闲</div>
-       </div>
-       <div class="clearfix player-block">
-         <div v-if="nextPlayer.name">
-           <span class="player-name">{{nextPlayer.name}}</span>
-            <span class="player-status" v-if="nextPlayer.isReady">已准备</span>
-            <span class="player-status" v-else>未准备</span>
-         </div>
-         <div v-else>空闲</div>
-       </div>
-    </div> -->
-
       <div class="main-header"></div>
-      <analogue-view design="prev" :playerData="prevPlayer"/>
-      <analogue-view design="next" :playerData="nextPlayer"/>
+      <analogue-view design="prev" :player-data="prevPlayer" :poke-view-data="prevPokeData"/>
+      <analogue-view design="next" :player-data="nextPlayer" :poke-view-data="nextPokeData"/>
 
       <div class="main-self">
          <div class="self-print-poke">
@@ -40,15 +15,14 @@
             <el-button type="success" style="width:72px"  size="mini" v-if="!isReady" @click="onReady(true)">准 备</el-button>
             <el-button type="warning" style="width:72px"  size="mini" v-else @click="onReady(false)">取消准备</el-button>
           </div>
-          <!-- <div v-if="gameStatus=='game' && (currentIndex === playerIndex)"> -->
-          <div v-if="gameStatus=='game'" style="text-align:center">
-              <el-button type="warning" style="width:72px"  @click="onEmit('pass')">PASS</el-button>
+          <div v-if="gameStatus=='game' && yourRound" style="text-align:center">
+              <el-button type="warning" style="width:72px"  @click="onPass">PASS</el-button>
               <el-button type="success" style="width:72px"  @click="onEmit">出 牌</el-button>
           </div>
-          <div v-if="gameStatus=='grab'" style="text-align:center">
-              <el-button type="primary" style="width:72px"  @click="onGrab(1)">1 分</el-button>
-              <el-button type="primary" style="width:72px"  @click="onGrab(2)">2 分</el-button>
-              <el-button type="primary" style="width:72px"  @click="onGrab(3)">3 分</el-button>
+          <div v-if="gameStatus=='grab' && yourRound" style="text-align:center">
+              <el-button type="primary" style="width:72px" :disabled="jetton>=1" @click="onGrab(1)">1 分</el-button>
+              <el-button type="primary" style="width:72px" :disabled="jetton>=2" @click="onGrab(2)">2 分</el-button>
+              <el-button type="primary" style="width:72px" :disabled="jetton>=3" @click="onGrab(3)">3 分</el-button>
               <el-button type="warning" style="width:72px"  @click="onGrab(0)">不 抢</el-button>
           </div>
         </div>
@@ -91,8 +65,12 @@ export default {
       checkedList:[],
       pokeData:[],
       pokeViewData:[],
+      prevPokeData:[],
+      nextPokeData:[],
       textView:'',
       chatMessage:'',
+      jetton:'',
+      currentIndex:'',
       playerIndex:undefined,
       uid:undefined,
       player:{},
@@ -105,7 +83,9 @@ export default {
     isReady() {
       return this.player.isReady
     },
-
+    yourRound(){
+      return `${this.currentIndex}` === `${this.playerIndex}`
+    }
   },
   created() {},
   mounted() {
@@ -115,23 +95,24 @@ export default {
 
     //监听房间频道
     this.sockets.subscribe("roomChannel", data => {
-      const {room} = data
-      this.setPlayers(room,this.uid)
-      if(room.gameStatus=='grab'){
+       this.gameStatus = data.room.gameStatus
+      this.setPlayers(data.room,this.uid)
+      if(data.room.gameStatus=='grab'){
          this.$socket.emit("getPoke", this.uid)
       }
     })
   
     //监听弹幕频道
     this.sockets.subscribe("chat", data => {
-       this.$barrage(data.msg)
+      this.$barrage(data.msg)
     })
 
     //监听游戏频道
      this.sockets.subscribe("gameChannel", (data) => {
-       this.gameStatus = data.room.gameStatus
-        this.pokeData = data.poke.sort((a,b)=>b.weight-a.weight)
-        this.setPlayers(data.room,this.uid)
+      this.gameStatus = data.room.gameStatus
+      this.jetton = data.room.jetton
+      this.pokeData = data.poke.sort((a,b)=>b.weight-a.weight)
+      this.setPlayers(data.room,this.uid)
     })
 
 
@@ -147,6 +128,8 @@ export default {
     // 监听右键出牌
     document.onmousedown = (e)=>{
       if(event.button == 2){
+        if(this.gameStatus !=='game') return  // 非出牌阶段 
+        if(!this.yourRound) return  // 不是你的回合
         this.onEmit()
         e.preventDefault()
         return false;
@@ -157,11 +140,12 @@ export default {
     onReady(flag){
       this.$socket.emit("ready",this.uid,flag)
     },
-    onEmit(pass){
-      if(this.gameStatus !=='game') return 
-      if(!pass && !this.checkedList.length) return 
-      const data = pass ? pass : this.checkedList
-      this.$socket.emit('gameChannel',this.uid,data)
+    onPass(){
+      this.$socket.emit('gameChannel',this.uid,"pass")
+    },
+    onEmit(){
+      if(!this.checkedList.length) return  //没选牌
+      this.$socket.emit('gameChannel',this.uid,this.checkedList)
     },
     onGrab(type){
       this.$socket.emit('gameChannel',this.uid,type)
@@ -190,14 +174,28 @@ export default {
       // 设置上下家
       const nextPlayerIndex = ((this.playerIndex +1) %3 )
       const prevPlayerIndex = ((this.playerIndex +2) %3 )
+      let nextSetted = false
+      let prevSetted = false
       currentPlayer.forEach(u=>{
         if(u.index == nextPlayerIndex ){
           this.nextPlayer = u
+           this.nextPokeData = u.topPoke
+           nextSetted = true
         }
         else if(u.index == prevPlayerIndex ){
-          this.prevPlayer = u 
+          this.prevPlayer = u
+          this.prevPokeData = u.topPoke
+           prevSetted = true
         }  
       })
+      if(!nextSetted){    
+        this.nextPlayer = {}
+        this.nextPokeData = []
+      }
+      if(!prevSetted){    
+        this.prevPlayer = {}
+        this.prevPokeData = []
+      }
     },
   }
 }
