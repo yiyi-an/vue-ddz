@@ -40,7 +40,10 @@ body,html{
   position: absolute;
   transform: translateY(-50%);
   top: 50%;
-  width: 48%;
+  width: 46%;
+}
+.analogue-container + .analogue-container{
+  width: 50%;
 }
 
 .print-text{
@@ -52,6 +55,9 @@ body,html{
 .row-reverse{
   flex-flow: row-reverse !important;
   justify-content: start;
+}
+.marginL{
+  margin-right: 30px;
 }
 .poke-view-container{
   display: flex;

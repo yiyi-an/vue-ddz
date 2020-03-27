@@ -13,7 +13,7 @@
                 }"
                 @click="handlePoke(p)">
              <span class="letter-tight" :class="{'poke-joker':p.weight>12}">{{p.label}}</span>
-             <!-- <span>{{p.color|parseColor(p.id)}}</span> -->
+             <span>{{p.color|parseColor(p.id)}}</span>
           </div>
     </div>
   </div>

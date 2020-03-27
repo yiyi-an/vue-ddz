@@ -1,7 +1,9 @@
 <template>
 <div class="room page-container">
   <div class="room-main app-bg">
-      <div class="main-header"></div>
+      <div class="main-header">
+        <poke-view :pokeData="floorPokeData"/>
+      </div>
       <analogue-view design="prev" :player-data="prevPlayer" :poke-view-data="prevPokeData"/>
       <analogue-view design="next" :player-data="nextPlayer" :poke-view-data="nextPokeData"/>
 
@@ -31,12 +33,6 @@
         </div>
       </div>
     </div>
-
-
-    
-
-
-
     <div class="chat-container">
       <el-input v-model="chatMessage" ref="chatInput"
                 @keyup.enter.native="onMessage"
@@ -67,6 +63,7 @@ export default {
       pokeViewData:[],
       prevPokeData:[],
       nextPokeData:[],
+      floorPokeData:[],
       textView:'',
       chatMessage:'',
       jetton:'',
@@ -96,23 +93,23 @@ export default {
     //监听房间频道
     this.sockets.subscribe("roomChannel", data => {
        this.gameStatus = data.room.gameStatus
+       this.jetton = data.room.jetton
+       this.floorPokeData = data.room.floorPoke
       this.setPlayers(data.room,this.uid)
       if(data.room.gameStatus=='grab'){
-         this.$socket.emit("getPoke", this.uid)
+         this.onGetPoke()
       }
+    })
+
+    //监听获取手牌频道
+     this.sockets.subscribe("getPoke", (data) => {
+      this.gameStatus = data.room.gameStatus
+      this.pokeData = data.poke.sort((a,b)=>b.weight-a.weight)
     })
   
     //监听弹幕频道
     this.sockets.subscribe("chat", data => {
       this.$barrage(data.msg)
-    })
-
-    //监听游戏频道
-     this.sockets.subscribe("gameChannel", (data) => {
-      this.gameStatus = data.room.gameStatus
-      this.jetton = data.room.jetton
-      this.pokeData = data.poke.sort((a,b)=>b.weight-a.weight)
-      this.setPlayers(data.room,this.uid)
     })
 
 
@@ -141,14 +138,17 @@ export default {
       this.$socket.emit("ready",this.uid,flag)
     },
     onPass(){
-      this.$socket.emit('gameChannel',this.uid,"pass")
+      this.$socket.emit('roomChannel',this.uid,"pass")
     },
     onEmit(){
       if(!this.checkedList.length) return  //没选牌
-      this.$socket.emit('gameChannel',this.uid,this.checkedList)
+      this.$socket.emit('roomChannel',this.uid,this.checkedList)
     },
     onGrab(type){
-      this.$socket.emit('gameChannel',this.uid,type)
+      this.$socket.emit('roomChannel',this.uid,type)
+    },
+    onGetPoke(){
+      this.$socket.emit("getPoke", this.uid)
     },
     onMessage(){
       if(!this.chatMessage.trim()) return

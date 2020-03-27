@@ -7,7 +7,7 @@
         </div>
         <div class="analogue-empty print-text" v-else >空闲</div>
       </div>
-      <div class="analogue-print-view">
+      <div class="analogue-print-view" :class="{marginL:design == 'next'}">
            <div class="print-text" v-show="pokeViewData.length==0"> {{playerData.message}}</div>
            <poke-view :pokeData="pokeViewData" v-show="pokeViewData.length!==0"/>
       </div>
@@ -50,6 +50,7 @@ export default {
       }else{
         return {
           right:'0'
+
         }
       }
     }
