@@ -2,7 +2,7 @@
 <div class="room page-container">
   <div class="room-main app-bg">
       <div class="main-header">
-        <poke-view :pokeData="floorPokeData"/>
+        <poke-view :pokerData="floorPokeData" :bWidth="52"/>
       </div>
       <analogue-view design="prev" :player-data="prevPlayer" :poke-view-data="prevPokeData"/>
       <analogue-view design="next" :player-data="nextPlayer" :poke-view-data="nextPokeData"/>
@@ -10,7 +10,7 @@
       <div class="main-self">
          <div class="self-print-poke">
            <div class="print-text" v-show="pokeViewData.length==0"> {{this.textView}}</div>
-           <poke-view :pokeData="pokeViewData" v-show="pokeViewData.length!==0"/>
+           <poke-view :pokerData="pokeViewData" v-show="pokeViewData.length!==0"/>
         </div>
         <div class="self-widget">
           <div v-if="gameStatus=='wating'" style="text-align:center"  >
@@ -18,7 +18,7 @@
             <el-button type="warning" style="width:72px"  size="mini" v-else @click="onReady(false)">取消准备</el-button>
           </div>
           <div v-if="gameStatus=='game' && yourRound" style="text-align:center">
-              <el-button type="warning" style="width:72px"  @click="onPass">PASS</el-button>
+              <el-button type="warning" style="width:72px"  @click="onPass" :disabled="passDisable">PASS</el-button>
               <el-button type="success" style="width:72px"  @click="onEmit">出 牌</el-button>
           </div>
           <div v-if="gameStatus=='grab' && yourRound" style="text-align:center">
@@ -29,7 +29,7 @@
           </div>
         </div>
         <div v-if="gameStatus=='game' || gameStatus=='grab' " class="self-pock-hand">
-          <poke-hand :poke-data="pokeData" v-model="checkedList"/>
+          <poke-hand :poker-data="pokerData" v-model="checkedList"/>
         </div>
       </div>
     </div>
@@ -58,8 +58,9 @@ export default {
     return {
       gameStatus:"wating",
       chatDisable:false,
+      passDisable:true,
       checkedList:[],
-      pokeData:[],
+      pokerData:[],
       pokeViewData:[],
       prevPokeData:[],
       nextPokeData:[],
@@ -86,7 +87,7 @@ export default {
   },
   created() {},
   mounted() {
-    this.uid = localStorage.getItem("ddz_uid");
+    this.uid = sessionStorage.getItem("ddz_uid");
     // 加入房间
     this.$socket.emit("roomChannel", this.uid);
 
@@ -102,14 +103,19 @@ export default {
     })
 
     //监听获取手牌频道
-     this.sockets.subscribe("getPoke", (data) => {
+     this.sockets.subscribe("getPokers", (data) => {
       this.gameStatus = data.room.gameStatus
-      this.pokeData = data.poke.sort((a,b)=>b.weight-a.weight)
+      this.pokerData = data.pokers.sort((a,b)=>b.weight-a.weight)
     })
   
     //监听弹幕频道
     this.sockets.subscribe("chat", data => {
-      this.$barrage(data.msg)
+      const {type,message} = data
+      if(type){
+        this.$message({type,message})
+      }else{
+        this.$barrage(message)
+      }
     })
 
 
@@ -148,7 +154,7 @@ export default {
       this.$socket.emit('roomChannel',this.uid,type)
     },
     onGetPoke(){
-      this.$socket.emit("getPoke", this.uid)
+      this.$socket.emit("getPokers", this.uid)
     },
     onMessage(){
       if(!this.chatMessage.trim()) return
@@ -162,11 +168,12 @@ export default {
     },
     setPlayers(room,uid){
       // 设置当前玩家
-      const {currentPlayer,currentIndex} = room
+      const {currentPlayer,currentIndex,currentPoker} = room
       const player = currentPlayer.filter(u=>{
         return u.uid===this.uid
       })[0]
       this.player = player
+      this.passDisable = !currentPoker.length
       this.pokeViewData = this.player.topPoke
       this.textView = this.player.message
       this.playerIndex = this.player.index
@@ -228,8 +235,8 @@ export default {
       }
       .self-print-poke{
         position: absolute;
-        top: -80px;
-        height: 80px;
+        top: -72px;
+        height: 70px;
         min-width: 50px;
         display: flex;
         justify-content: center;

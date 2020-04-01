@@ -1,10 +1,10 @@
 {
-  "name": "client",
+  "name": "vue-ddz",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev":"pm2 start npm -- run dev2",
-    "dev2": "vue-cli-service serve",
+    "pm":"pm2 start npm -- run dev",
+    "dev": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },

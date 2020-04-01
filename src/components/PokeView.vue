@@ -1,7 +1,7 @@
 <template>
   <div class='poke-view-container'>
-    <div  class="poke-block" 
-          v-for="(p) in  pokeData"  
+    <div  class="poke-block"  :style="styleObj"
+          v-for="(p) in  pokerData"  
           :key="p.id">
           <div class="poke-screen" 
                :class="{
@@ -18,9 +18,22 @@
 const pArr = ["♦️","♣️","♥️","♠️"]
 export default {
   props:{
-    pokeData:{
+    pokerData:{
       required:true,
       type:Array
+    },
+    bWidth:{
+      type:[Number],
+      default(){
+        return 22
+      }
+    },
+  },
+  computed: {
+    styleObj(){
+      return {
+        width:this.bWidth+'px'
+      }
     }
   },
   filters:{

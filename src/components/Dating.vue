@@ -49,10 +49,10 @@ export default {
   methods: {
     login() {
       // debugger
-      const uid = localStorage.getItem("ddz_uid");
+      const uid = sessionStorage.getItem("ddz_uid");
       this.$socket.emit("login", uid);
       this.sockets.subscribe("login", data => {
-        localStorage.setItem("ddz_uid", data.uid);
+        sessionStorage.setItem("ddz_uid", data.uid);
         this.uid = data.uid;
       });
     },

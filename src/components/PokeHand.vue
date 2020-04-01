@@ -1,7 +1,8 @@
 <template>
   <div class='poke-view-container'>
     <div  class="poke-block" 
-          v-for="(p,ind) in  pokeData"  
+          style="width:22px"
+          v-for="(p,ind) in  pokerData"  
           :key="p.id">
           <div class="poke-screen" 
                :class="{
@@ -42,13 +43,13 @@ const testData = [
       ]
 export default {
   props:{
-    pokeData:{
+    pokerData:{
       required:true,
       type:Array
     }
   },
   watch:{
-    pokeData(val){
+    pokerData(val){
       this.comCheckList()
     }
   },
@@ -77,7 +78,7 @@ export default {
        this.comCheckList()
     },
     comCheckList(){
-      const checkedList = this.pokeData.filter(item=>{
+      const checkedList = this.pokerData.filter(item=>{
         return item.checked
       })
       this.$emit('input',checkedList)
