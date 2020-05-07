@@ -60,7 +60,7 @@ export default {
       this.$socket.emit("createRoom", this.uid);
       this.sockets.subscribe("roomChannel", data => {
         if(data.code === 200){
-          this.$store.dispatch('toggleView','WatingRoom')
+          this.$store.dispatch('toggleView','GameRoom')
         }
       });
     },
@@ -69,7 +69,7 @@ export default {
       this.$socket.emit("joinRoom", this.uid,room.id);
       this.sockets.subscribe("roomChannel", data => {
         if(data.code === 200){
-          this.$store.dispatch('toggleView','WatingRoom')
+          this.$store.dispatch('toggleView','GameRoom')
         }
       });
 

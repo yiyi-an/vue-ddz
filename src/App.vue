@@ -6,12 +6,12 @@
 
 <script>
 import Dating from './components/Dating.vue'
-import WatingRoom from './components/WatingRoom.vue'
+import GameRoom from './components/GameRoom.vue'
 export default {
   name: 'App',
   components: {
     Dating,
-    WatingRoom
+    GameRoom
   },
   data(){
     return {
