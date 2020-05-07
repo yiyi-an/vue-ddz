@@ -23,7 +23,8 @@ Vue.use(Barrage)
 Vue.use(new VueSocketIO({
   debug: true,
   // 服务器端地址
-  connection: '//ddz.dodolib.cn',
+  connection: '//123.206.204.35:10068',
+  // connection: '//ddz.dodolib.cn:10068',
   vuex: {
     store
   }
