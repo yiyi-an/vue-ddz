@@ -55,6 +55,10 @@ export default {
         sessionStorage.setItem("ddz_uid", data.uid);
         this.uid = data.uid;
       });
+
+      this.sockets.subscribe('roomList',data=>{
+        this.roomList= data.list
+      })
     },
     createRoom(){
       this.$socket.emit("createRoom", this.uid);
@@ -79,9 +83,6 @@ export default {
     setTimeout(() => {
       this.login();
     }, 1000);
-    this.sockets.subscribe('roomList',data=>{
-      this.roomList= data.list
-    })
   }
 };
 </script>

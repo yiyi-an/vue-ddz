@@ -15,8 +15,8 @@ import '../utils/prevent'
 
 Vue.config.productionTip = false
 
-Vue.use(ElementUI,{
-  size:'mini'
+Vue.use(ElementUI, {
+  size: 'mini'
 });
 Vue.use(Barrage)
 
@@ -32,5 +32,5 @@ Vue.use(new VueSocketIO({
 
 new Vue({
   store,
-  render: h => h(App)
+  render: (h) => h(App)
 }).$mount('#app')
