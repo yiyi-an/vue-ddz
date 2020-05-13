@@ -5,7 +5,7 @@
         <div class="analogue-avtar" v-if="playerData.uid">
           {{playerData.uid}}
         </div>
-        <div class="analogue-empty print-text" v-else >空闲</div>
+        <div class="analogue-empty print-text" style="color:yellow" v-else >空闲</div>
       </div>
       <div class="analogue-print-view" :class="{marginL:design == 'next'}">
            <div class="print-text" v-show="pokeViewData.length==0"> {{playerData.message}}</div>

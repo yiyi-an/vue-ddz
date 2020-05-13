@@ -224,7 +224,6 @@ export default {
       margin: auto;
       > div{
         background: rgba(0,0,0,.3);
-        border: 1px solid red;
       }
       .main-header{
         width: 100%;
