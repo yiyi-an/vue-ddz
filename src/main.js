@@ -24,8 +24,7 @@ Vue.use(new VueSocketIO({
   debug: true,
   // 服务器端地址
   // connection: '//123.206.204.35:10068',
-  // connection: '//ddz-server.dodolib.cn',
-  connection: '//ddz.dodolib.cn:10086',
+  connection: 'www.dodolib.cn:10086',
   vuex: {
     store
   }
