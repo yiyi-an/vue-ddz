@@ -19,12 +19,11 @@ Vue.use(ElementUI, {
   size: 'mini'
 });
 Vue.use(Barrage)
-
 Vue.use(new VueSocketIO({
   debug: true,
   // 服务器端地址
-  // connection: '//123.206.204.35:10068',
-  connection: 'www.dodolib.cn:10086',
+  connection: '//localhost:10086',
+  // connection: 'www.dodolib.cn:10086',
   vuex: {
     store
   }

@@ -2,17 +2,7 @@ const path = require('path')
 module.exports = {
   outputDir: 'dist',
   devServer: {
-    disableHostCheck: true,
-    // proxy:{
-    //   '/socket.io':{
-    //     target:'//localhost:8082',
-    //     changeOrigin: true,
-    //     ws: true,
-    //     pathRewrite: {
-
-    //     }
-    //   }
-    // }
+    disableHostCheck: true
   },
   configureWebpack: (config) => {
     Object.assign(config, {

@@ -7,17 +7,7 @@
         <span v-else>未登录</span>
       </div>
       <div class="dating-middle">
-        <div class="dating-left dating-block">
-          <div class="dating-title">历史战绩</div>
-        </div>
-        <div>
-          <el-button
-            type="primary"
-            style="width:180px;margin-top:80px"
-            @click="createRoom"
-          >创建房间</el-button>
-        </div>
-        <div class="dating-left  dating-block">
+        <div class="dating-block">
           <div class="dating-title">房间列表</div>
           <div class="dating-rooms">
             <div
@@ -30,6 +20,13 @@
               <span style="float:right">在线人数:{{r.playerNum}}/3</span>
             </div>
           </div>
+        </div>
+        <div class="dating-btns">
+          <el-button
+            type="primary"
+            style="width:180px;margin-top:80px"
+            @click="createRoom"
+          >创建房间</el-button>
         </div>
 
       </div>
@@ -87,7 +84,6 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style  lang="scss">
 .dating {
   position: absolute;
@@ -113,7 +109,9 @@ export default {
       max-height: 536px;
       width: 100%;
       display: flex;
-      justify-content: space-between;
+    }
+    .dating-btns {
+      margin:0 26px;
     }
     .dating-block {
       border: 3px solid #eee;
